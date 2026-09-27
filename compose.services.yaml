@@ -1,0 +1,137 @@
+x-backend-common: &backend-common
+  restart: unless-stopped
+  networks:
+    - compralatino_net
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_started
+    rabbitmq:
+      condition: service_healthy
+
+x-backend-env-common: &backend-env-common
+  PORT: 3000
+  REDIS_HOST: redis
+  REDIS_PORT: 6379
+  REDIS_PASSWORD: ${REDIS_PASSWORD:-compralatino}
+  CACHE_ENABLED: 'true'
+  CACHE_STORE: redis
+  QUEUE_ENABLED: 'true'
+  THROTTLE_STORAGE: redis
+  RABBITMQ_ENABLED: 'true'
+  RABBITMQ_URL: amqp://${RABBITMQ_USER:-compralatino}:${RABBITMQ_PASSWORD:-compralatino}@rabbitmq:5672
+  RABBITMQ_EXCHANGE: compralatino_events
+
+services:
+  users-api:
+    <<: *backend-common
+    build:
+      context: ../compralatino-users-api
+      dockerfile: Dockerfile
+    container_name: compralatino_users_api
+    env_file:
+      - ../compralatino-users-api/.env
+    environment:
+      <<: *backend-env-common
+      DATABASE_URL: postgresql://${POSTGRES_USER:-compralatino}:${POSTGRES_PASSWORD:-compralatino}@postgres:5432/${POSTGRES_DB:-compralatino}?schema=users_svc
+      RABBITMQ_QUEUE: users_svc_queue
+    ports:
+      - '3001:3000'
+
+  catalog-api:
+    <<: *backend-common
+    build:
+      context: ../compralatino-catalog-api
+      dockerfile: Dockerfile
+    container_name: compralatino_catalog_api
+    env_file:
+      - ../compralatino-catalog-api/.env
+    environment:
+      <<: *backend-env-common
+      DATABASE_URL: postgresql://${POSTGRES_USER:-compralatino}:${POSTGRES_PASSWORD:-compralatino}@postgres:5432/${POSTGRES_DB:-compralatino}?schema=catalog_svc
+      RABBITMQ_QUEUE: catalog_svc_queue
+    ports:
+      - '3002:3000'
+
+  orders-api:
+    <<: *backend-common
+    build:
+      context: ../compralatino-orders-api
+      dockerfile: Dockerfile
+    container_name: compralatino_orders_api
+    env_file:
+      - ../compralatino-orders-api/.env
+    environment:
+      <<: *backend-env-common
+      DATABASE_URL: postgresql://${POSTGRES_USER:-compralatino}:${POSTGRES_PASSWORD:-compralatino}@postgres:5432/${POSTGRES_DB:-compralatino}?schema=orders_svc
+      RABBITMQ_QUEUE: orders_svc_queue
+    ports:
+      - '3003:3000'
+
+  recommendations-api:
+    <<: *backend-common
+    build:
+      context: ../compralatino-recommendations-api
+      dockerfile: Dockerfile
+    container_name: compralatino_recommendations_api
+    env_file:
+      - ../compralatino-recommendations-api/.env
+    environment:
+      <<: *backend-env-common
+      DATABASE_URL: postgresql://${POSTGRES_USER:-compralatino}:${POSTGRES_PASSWORD:-compralatino}@postgres:5432/${POSTGRES_DB:-compralatino}?schema=recommendations_svc
+      RABBITMQ_QUEUE: recommendations_svc_queue
+    ports:
+      - '3004:3000'
+
+  admin-api:
+    <<: *backend-common
+    build:
+      context: ../compralatino-admin-api
+      dockerfile: Dockerfile
+    container_name: compralatino_admin_api
+    env_file:
+      - ../compralatino-admin-api/.env
+    environment:
+      <<: *backend-env-common
+      DATABASE_URL: postgresql://${POSTGRES_USER:-compralatino}:${POSTGRES_PASSWORD:-compralatino}@postgres:5432/${POSTGRES_DB:-compralatino}?schema=admin_svc
+      RABBITMQ_QUEUE: admin_svc_queue
+    ports:
+      - '3005:3000'
+
+  yauctions-api:
+    <<: *backend-common
+    build:
+      context: ../compralatino-yauctions-api
+      dockerfile: Dockerfile
+    container_name: compralatino_yauctions_api
+    env_file:
+      - ../compralatino-yauctions-api/.env
+    environment:
+      <<: *backend-env-common
+      DATABASE_URL: postgresql://${POSTGRES_USER:-compralatino}:${POSTGRES_PASSWORD:-compralatino}@postgres:5432/${POSTGRES_DB:-compralatino}?schema=yauctions_svc
+      RABBITMQ_QUEUE: yauctions_svc_queue
+    ports:
+      - '3006:3000'
+
+  frontend:
+    restart: unless-stopped
+    build:
+      context: ../compralatino-frontend
+      dockerfile: Dockerfile
+    container_name: compralatino_frontend
+    env_file:
+      - ../compralatino-frontend/.env
+    environment:
+      # No API Gateway container yet (deferred to the Kubernetes/Helm setup) — points
+      # at users-api as a placeholder until the gateway exists.
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    ports:
+      - '3000:3000'
+    networks:
+      - compralatino_net
+
+networks:
+  compralatino_net:
+    driver: bridge
+    name: compralatino_net
