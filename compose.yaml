@@ -3,6 +3,7 @@ services:
     image: postgres:16.2-bookworm
     container_name: compralatino_postgres
     restart: unless-stopped
+    profiles: ['postgres', 'infra', 'all']
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-compralatino}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-compralatino}
@@ -24,6 +25,7 @@ services:
     image: redis/redis-stack-server:7.4.0-rc2-x86_64
     container_name: compralatino_redis
     restart: unless-stopped
+    profiles: ['redis', 'infra', 'all']
     environment:
       - REDIS_ARGS=--requirepass ${REDIS_PASSWORD:-compralatino}
     ports:
@@ -37,6 +39,7 @@ services:
     image: rabbitmq:3.13-management
     container_name: compralatino_rabbitmq
     restart: unless-stopped
+    profiles: ['rabbitmq', 'infra', 'all']
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-compralatino}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-compralatino}

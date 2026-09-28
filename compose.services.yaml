@@ -26,6 +26,7 @@ x-backend-env-common: &backend-env-common
 services:
   users-api:
     <<: *backend-common
+    profiles: ['users-api', 'services', 'all']
     build:
       context: ../compralatino-users-api
       dockerfile: Dockerfile
@@ -41,6 +42,7 @@ services:
 
   catalog-api:
     <<: *backend-common
+    profiles: ['catalog-api', 'services', 'all']
     build:
       context: ../compralatino-catalog-api
       dockerfile: Dockerfile
@@ -56,6 +58,7 @@ services:
 
   orders-api:
     <<: *backend-common
+    profiles: ['orders-api', 'services', 'all']
     build:
       context: ../compralatino-orders-api
       dockerfile: Dockerfile
@@ -71,6 +74,7 @@ services:
 
   recommendations-api:
     <<: *backend-common
+    profiles: ['recommendations-api', 'services', 'all']
     build:
       context: ../compralatino-recommendations-api
       dockerfile: Dockerfile
@@ -86,6 +90,7 @@ services:
 
   admin-api:
     <<: *backend-common
+    profiles: ['admin-api', 'services', 'all']
     build:
       context: ../compralatino-admin-api
       dockerfile: Dockerfile
@@ -101,6 +106,7 @@ services:
 
   yauctions-api:
     <<: *backend-common
+    profiles: ['yauctions-api', 'services', 'all']
     build:
       context: ../compralatino-yauctions-api
       dockerfile: Dockerfile
@@ -116,6 +122,7 @@ services:
 
   frontend:
     restart: unless-stopped
+    profiles: ['frontend', 'services', 'all']
     build:
       context: ../compralatino-frontend
       dockerfile: Dockerfile

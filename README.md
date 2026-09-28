@@ -32,14 +32,24 @@ deferred to the Kubernetes/Helm setup.
 
 ## Usage
 
+Every service is gated behind Compose [profiles](https://docs.docker.com/compose/how-tos/profiles/),
+so nothing starts unless you pass `--profile`. Each service has its own
+profile (matching its name), plus group profiles: `infra` (postgres, redis,
+rabbitmq), `services` (all backend APIs + frontend), and `all` (everything).
+
 ```bash
 cp .env.example .env   # first time only; defaults are fine for local dev
 
-# Shared infra only (useful when iterating on one service outside Docker)
-docker compose up -d
+# Just one piece of shared infra, e.g. when the rest runs on another cluster
+docker compose --profile rabbitmq up -d
 
-# Everything, infra + all services
-docker compose -f compose.yaml -f compose.services.yaml up -d --build
+# All shared infra
+docker compose --profile infra up -d
+
+# Everything, infra + all services (note: backend services depend_on the
+# infra services, so their profile must be active too — use `all` rather
+# than `services` alone unless infra is already running elsewhere)
+docker compose -f compose.yaml -f compose.services.yaml --profile all up -d --build
 ```
 
 Each service's own `.env` (in its sibling repo) is loaded via `env_file` for
