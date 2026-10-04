@@ -27,8 +27,23 @@ Compose; Helm charts for the K3s cluster (see Fase-2-CompraLatino-Mermaid.md
 - `init-db/` — SQL run once on first Postgres startup to create the
   per-service schemas.
 
-There is no API Gateway container here — routing between services is
-deferred to the Kubernetes/Helm setup.
+## Gateway (Traefik)
+
+Traefik (profile `gateway`, also in `infra` and `all`) stands in for the
+production Kubernetes ingress. Routers are declared as labels on each
+service in `compose.services.yaml`. Every API serves `/api/v1/...`, so each
+one is exposed under its own prefix, which Traefik strips:
+
+| URL | Target |
+| --- | --- |
+| `http://localhost/` | frontend |
+| `http://api.localhost/users/api/v1/...` | users-api |
+| `http://api.localhost/catalog/...`, `/orders/...`, `/recommendations/...`, `/admin/...`, `/yauctions/...` | matching API |
+| `http://localhost:8080` | Traefik dashboard (dev only, bound to 127.0.0.1) |
+
+`*.localhost` resolves to 127.0.0.1 without editing `/etc/hosts`. Change the
+host port with `GATEWAY_PORT` if 80 is taken. The frontend proxies `/api/*`
+to `http://traefik` over the Docker network.
 
 ## Usage
 

@@ -39,6 +39,13 @@ services:
       RABBITMQ_QUEUE: users_svc_queue
     ports:
       - '3001:3000'
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.users-api.rule=(Host(`api.localhost`) || Host(`traefik`)) && PathPrefix(`/users/`)
+      - traefik.http.routers.users-api.entrypoints=web
+      - traefik.http.routers.users-api.middlewares=users-api-strip
+      - traefik.http.middlewares.users-api-strip.stripprefix.prefixes=/users
+      - traefik.http.services.users-api.loadbalancer.server.port=3000
 
   catalog-api:
     <<: *backend-common
@@ -55,6 +62,13 @@ services:
       RABBITMQ_QUEUE: catalog_svc_queue
     ports:
       - '3002:3000'
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.catalog-api.rule=(Host(`api.localhost`) || Host(`traefik`)) && PathPrefix(`/catalog/`)
+      - traefik.http.routers.catalog-api.entrypoints=web
+      - traefik.http.routers.catalog-api.middlewares=catalog-api-strip
+      - traefik.http.middlewares.catalog-api-strip.stripprefix.prefixes=/catalog
+      - traefik.http.services.catalog-api.loadbalancer.server.port=3000
 
   orders-api:
     <<: *backend-common
@@ -71,6 +85,13 @@ services:
       RABBITMQ_QUEUE: orders_svc_queue
     ports:
       - '3003:3000'
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.orders-api.rule=(Host(`api.localhost`) || Host(`traefik`)) && PathPrefix(`/orders/`)
+      - traefik.http.routers.orders-api.entrypoints=web
+      - traefik.http.routers.orders-api.middlewares=orders-api-strip
+      - traefik.http.middlewares.orders-api-strip.stripprefix.prefixes=/orders
+      - traefik.http.services.orders-api.loadbalancer.server.port=3000
 
   recommendations-api:
     <<: *backend-common
@@ -87,6 +108,13 @@ services:
       RABBITMQ_QUEUE: recommendations_svc_queue
     ports:
       - '3004:3000'
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.recommendations-api.rule=(Host(`api.localhost`) || Host(`traefik`)) && PathPrefix(`/recommendations/`)
+      - traefik.http.routers.recommendations-api.entrypoints=web
+      - traefik.http.routers.recommendations-api.middlewares=recommendations-api-strip
+      - traefik.http.middlewares.recommendations-api-strip.stripprefix.prefixes=/recommendations
+      - traefik.http.services.recommendations-api.loadbalancer.server.port=3000
 
   admin-api:
     <<: *backend-common
@@ -103,6 +131,13 @@ services:
       RABBITMQ_QUEUE: admin_svc_queue
     ports:
       - '3005:3000'
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.admin-api.rule=(Host(`api.localhost`) || Host(`traefik`)) && PathPrefix(`/admin/`)
+      - traefik.http.routers.admin-api.entrypoints=web
+      - traefik.http.routers.admin-api.middlewares=admin-api-strip
+      - traefik.http.middlewares.admin-api-strip.stripprefix.prefixes=/admin
+      - traefik.http.services.admin-api.loadbalancer.server.port=3000
 
   yauctions-api:
     <<: *backend-common
@@ -119,6 +154,13 @@ services:
       RABBITMQ_QUEUE: yauctions_svc_queue
     ports:
       - '3006:3000'
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.yauctions-api.rule=(Host(`api.localhost`) || Host(`traefik`)) && PathPrefix(`/yauctions/`)
+      - traefik.http.routers.yauctions-api.entrypoints=web
+      - traefik.http.routers.yauctions-api.middlewares=yauctions-api-strip
+      - traefik.http.middlewares.yauctions-api-strip.stripprefix.prefixes=/yauctions
+      - traefik.http.services.yauctions-api.loadbalancer.server.port=3000
 
   frontend:
     restart: unless-stopped
@@ -130,13 +172,17 @@ services:
     env_file:
       - ../compralatino-frontend/.env
     environment:
-      # No API Gateway container yet (deferred to the Kubernetes/Helm setup) — points
-      # at users-api as a placeholder until the gateway exists.
-      NEXT_PUBLIC_API_URL: http://localhost:3001
+      # Server-side proxy target: Traefik on the Docker network (see gateway routers).
+      NEXT_PUBLIC_API_URL: http://traefik
     ports:
       - '3000:3000'
     networks:
       - compralatino_net
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.frontend.rule=Host(`localhost`)
+      - traefik.http.routers.frontend.entrypoints=web
+      - traefik.http.services.frontend.loadbalancer.server.port=3000
 
 networks:
   compralatino_net:
