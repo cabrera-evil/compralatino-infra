@@ -46,6 +46,9 @@ services:
       - traefik.http.routers.users-api.middlewares=users-api-strip
       - traefik.http.middlewares.users-api-strip.stripprefix.prefixes=/users
       - traefik.http.services.users-api.loadbalancer.server.port=3000
+      - traefik.http.routers.users-api-v1.rule=(Host(`api.localhost`) || Host(`traefik`)) && (PathPrefix(`/api/v1/auth`) || PathPrefix(`/api/v1/user`) || PathPrefix(`/api/v1/role`) || PathPrefix(`/api/v1/permissions`) || PathPrefix(`/api/v1/api-key`) || PathPrefix(`/api/v1/audit-log`))
+      - traefik.http.routers.users-api-v1.entrypoints=web
+      - traefik.http.routers.users-api-v1.service=users-api
 
   catalog-api:
     <<: *backend-common
@@ -69,6 +72,9 @@ services:
       - traefik.http.routers.catalog-api.middlewares=catalog-api-strip
       - traefik.http.middlewares.catalog-api-strip.stripprefix.prefixes=/catalog
       - traefik.http.services.catalog-api.loadbalancer.server.port=3000
+      - traefik.http.routers.catalog-api-v1.rule=(Host(`api.localhost`) || Host(`traefik`)) && (PathPrefix(`/api/v1/products`) || PathPrefix(`/api/v1/categories`))
+      - traefik.http.routers.catalog-api-v1.entrypoints=web
+      - traefik.http.routers.catalog-api-v1.service=catalog-api
 
   orders-api:
     <<: *backend-common
@@ -92,6 +98,9 @@ services:
       - traefik.http.routers.orders-api.middlewares=orders-api-strip
       - traefik.http.middlewares.orders-api-strip.stripprefix.prefixes=/orders
       - traefik.http.services.orders-api.loadbalancer.server.port=3000
+      - traefik.http.routers.orders-api-v1.rule=(Host(`api.localhost`) || Host(`traefik`)) && (PathPrefix(`/api/v1/orders`) || PathPrefix(`/api/v1/cart`) || PathPrefix(`/api/v1/checkout-options`))
+      - traefik.http.routers.orders-api-v1.entrypoints=web
+      - traefik.http.routers.orders-api-v1.service=orders-api
 
   recommendations-api:
     <<: *backend-common
@@ -115,6 +124,9 @@ services:
       - traefik.http.routers.recommendations-api.middlewares=recommendations-api-strip
       - traefik.http.middlewares.recommendations-api-strip.stripprefix.prefixes=/recommendations
       - traefik.http.services.recommendations-api.loadbalancer.server.port=3000
+      - traefik.http.routers.recommendations-api-v1.rule=(Host(`api.localhost`) || Host(`traefik`)) && PathPrefix(`/api/v1/recommendations`)
+      - traefik.http.routers.recommendations-api-v1.entrypoints=web
+      - traefik.http.routers.recommendations-api-v1.service=recommendations-api
 
   admin-api:
     <<: *backend-common
@@ -138,6 +150,9 @@ services:
       - traefik.http.routers.admin-api.middlewares=admin-api-strip
       - traefik.http.middlewares.admin-api-strip.stripprefix.prefixes=/admin
       - traefik.http.services.admin-api.loadbalancer.server.port=3000
+      - traefik.http.routers.admin-api-v1.rule=(Host(`api.localhost`) || Host(`traefik`)) && PathPrefix(`/api/v1/admin`)
+      - traefik.http.routers.admin-api-v1.entrypoints=web
+      - traefik.http.routers.admin-api-v1.service=admin-api
 
   yauctions-api:
     <<: *backend-common
@@ -161,6 +176,9 @@ services:
       - traefik.http.routers.yauctions-api.middlewares=yauctions-api-strip
       - traefik.http.middlewares.yauctions-api-strip.stripprefix.prefixes=/yauctions
       - traefik.http.services.yauctions-api.loadbalancer.server.port=3000
+      - traefik.http.routers.yauctions-api-v1.rule=(Host(`api.localhost`) || Host(`traefik`)) && PathPrefix(`/api/v1/yauctions`)
+      - traefik.http.routers.yauctions-api-v1.entrypoints=web
+      - traefik.http.routers.yauctions-api-v1.service=yauctions-api
 
   frontend:
     restart: unless-stopped
@@ -168,12 +186,19 @@ services:
     build:
       context: ../compralatino-frontend
       dockerfile: Dockerfile
+      # NEXT_PUBLIC_* are inlined at `next build`; effective only if the Dockerfile declares matching ARGs.
+      args:
+        NEXT_PUBLIC_API_URL: http://traefik/api/v1
+        NEXT_PUBLIC_PROXY: 'true'
+        NEXT_PUBLIC_HOST: ${FRONTEND_ORIGIN:-http://localhost}
     container_name: compralatino_frontend
     env_file:
       - ../compralatino-frontend/.env
     environment:
-      # Server-side proxy target: Traefik on the Docker network (see gateway routers).
-      NEXT_PUBLIC_API_URL: http://traefik
+      # Rewrite target for /api/*: Traefik on the Docker network, routed by resource path under /api/v1.
+      NEXT_PUBLIC_API_URL: http://traefik/api/v1
+      NEXT_PUBLIC_PROXY: 'true'
+      NEXT_PUBLIC_HOST: ${FRONTEND_ORIGIN:-http://localhost}
     ports:
       - '3000:3000'
     networks:

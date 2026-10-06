@@ -31,19 +31,32 @@ Compose; Helm charts for the K3s cluster (see Fase-2-CompraLatino-Mermaid.md
 
 Traefik (profile `gateway`, also in `infra` and `all`) stands in for the
 production Kubernetes ingress. Routers are declared as labels on each
-service in `compose.services.yaml`. Every API serves `/api/v1/...`, so each
-one is exposed under its own prefix, which Traefik strips:
+service in `compose.services.yaml`. Every API serves `/api/v1/...` itself, so
+the gateway routes by resource path under `/api/v1` with no prefix stripping.
+The legacy per-service `/<svc>/...` routers (prefix stripped) remain for
+debugging and health checks.
 
 | URL | Target |
 | --- | --- |
 | `http://localhost/` | frontend |
-| `http://api.localhost/users/api/v1/...` | users-api |
-| `http://api.localhost/catalog/...`, `/orders/...`, `/recommendations/...`, `/admin/...`, `/yauctions/...` | matching API |
+| `http://api.localhost/api/v1/{auth,user,role,permissions,api-key,audit-log}` | users-api |
+| `http://api.localhost/api/v1/{products,categories}` | catalog-api |
+| `http://api.localhost/api/v1/{orders,cart,checkout-options}` | orders-api (reserved) |
+| `http://api.localhost/api/v1/recommendations` | recommendations-api (reserved) |
+| `http://api.localhost/api/v1/yauctions` | yauctions-api (reserved) |
+| `http://api.localhost/api/v1/admin` | admin-api (reserved) |
+| `http://api.localhost/<svc>/api/health` | per-service debug/health (`users`, `catalog`, `orders`, `recommendations`, `admin`, `yauctions`) |
 | `http://localhost:8080` | Traefik dashboard (dev only, bound to 127.0.0.1) |
 
-`*.localhost` resolves to 127.0.0.1 without editing `/etc/hosts`. Change the
-host port with `GATEWAY_PORT` if 80 is taken. The frontend proxies `/api/*`
-to `http://traefik` over the Docker network.
+Reserved routes return 404 until the service implements them. `*.localhost`
+resolves to 127.0.0.1 without editing `/etc/hosts`. Change the host port with
+`GATEWAY_PORT` if 80 is taken. In Docker the frontend gets
+`NEXT_PUBLIC_API_URL=http://traefik/api/v1`, `NEXT_PUBLIC_PROXY=true` and
+`NEXT_PUBLIC_HOST` (`FRONTEND_ORIGIN`, default `http://localhost`); its `/api/*`
+rewrite targets that URL.
+
+Host dev (frontend run on the host, gateway in Docker): set
+`NEXT_PUBLIC_API_URL=http://api.localhost/api/v1` in the frontend `.env`.
 
 ## Usage
 
