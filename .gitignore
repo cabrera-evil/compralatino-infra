@@ -7,3 +7,7 @@
 # Editors
 .vscode/
 .idea/
+
+# Helm secrets (never commit)
+helm/secrets/
+helm/compiled.yaml

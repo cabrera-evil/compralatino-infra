@@ -1,0 +1,131 @@
+fullnameOverride: catalog-api
+
+replicaCount: 1
+
+image:
+  repository: cabreraevil/compralatino-catalog-api
+  pullPolicy: IfNotPresent
+
+containerPorts:
+  - name: http
+    containerPort: 3000
+    protocol: TCP
+
+service:
+  type: ClusterIP
+  port: 80
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+
+configMap:
+  enabled: true
+  data:
+    ADMIN_FIRSTNAME: "Admin"
+    ADMIN_LASTNAME: "User"
+    CACHE_ENABLED: "true"
+    CACHE_STORE: "redis"
+    CACHE_TTL: "3600"
+    CORS_ORIGIN: "https://compralatino.example.com"
+    ENCRYPTION_ENABLED: "false"
+    FRONTEND_URL: "https://compralatino.example.com"
+    GOOGLE_CALLBACK_PATH: "/auth/google/callback"
+    HOME: "/tmp"
+    NODE_ENV: "production"
+    PORT: "3000"
+    QUEUE_ATTEMPTS: "3"
+    QUEUE_BACKOFF: "2000"
+    QUEUE_ENABLED: "true"
+    QUEUE_REMOVE_ON_COMPLETE: "1000"
+    QUEUE_REMOVE_ON_FAIL: "3000"
+    RABBITMQ_ENABLED: "true"
+    RABBITMQ_EXCHANGE: "compralatino_events"
+    RABBITMQ_QUEUE: "catalog_svc_queue"
+    REDIS_CONNECT_TIMEOUT: "10000"
+    REDIS_HOST: "redis"
+    REDIS_PORT: "6379"
+    SALT_ROUNDS: "10"
+    SMTP_IGNORE_TLS: "false"
+    SMTP_SECURE: "false"
+    TCP_ENABLED: "false"
+    THROTTLE_ENABLED: "true"
+    THROTTLE_LONG_LIMIT: "1000"
+    THROTTLE_LONG_TTL: "3600000"
+    THROTTLE_MEDIUM_LIMIT: "100"
+    THROTTLE_MEDIUM_TTL: "60000"
+    THROTTLE_PROXY_DEPTH: "1"
+    THROTTLE_SHORT_LIMIT: "10"
+    THROTTLE_SHORT_TTL: "1000"
+    THROTTLE_STORAGE: "redis"
+    THROTTLE_TRUST_PROXY: "true"
+
+secret:
+  enabled: true
+
+volumes:
+  - name: tmp
+    emptyDir: {}
+
+volumeMounts:
+  - name: tmp
+    mountPath: /tmp
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 768Mi
+
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /api/health
+    port: http
+  periodSeconds: 20
+  timeoutSeconds: 5
+
+readinessProbe:
+  enabled: true
+  httpGet:
+    path: /api/health
+    port: http
+  periodSeconds: 10
+  timeoutSeconds: 5
+
+startupProbe:
+  enabled: true
+  httpGet:
+    path: /api/health
+    port: http
+  periodSeconds: 5
+  failureThreshold: 30
+
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: null
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+  hosts:
+    - host: api.compralatino.example.com
+      paths:
+        - path: /api/v1/products
+          pathType: Prefix
+          backend:
+            service:
+              port:
+                number: 80
+        - path: /api/v1/categories
+          pathType: Prefix
+          backend:
+            service:
+              port:
+                number: 80
+  tls:
+    - hosts:
+        - api.compralatino.example.com
+      secretName: compralatino-api-tls

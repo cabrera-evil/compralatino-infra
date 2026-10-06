@@ -1,0 +1,95 @@
+fullnameOverride: frontend
+
+replicaCount: 1
+
+image:
+  repository: cabreraevil/compralatino-frontend
+  pullPolicy: IfNotPresent
+
+containerPorts:
+  - name: http
+    containerPort: 3000
+    protocol: TCP
+
+service:
+  type: ClusterIP
+  port: 80
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+
+configMap:
+  enabled: true
+  data:
+    AUTH_DEBUG: "false"
+    HOSTNAME: "0.0.0.0"
+    NEXT_PUBLIC_API_MOCKS: "cart,orders,monitoring"
+    NEXT_PUBLIC_API_URL: "https://api.compralatino.example.com/api/v1"
+    NEXT_PUBLIC_GOOGLE_ADSENSE_ID: "your-adsense-id"
+    NEXT_PUBLIC_GOOGLE_ANALYTICS_ID: "your-analytics-id"
+    NEXT_PUBLIC_GOOGLE_SITES_VERIFICATION: "your-sites-verification-code"
+    NEXT_PUBLIC_HOST: "https://compralatino.example.com"
+    NEXT_PUBLIC_PROXY: "false"
+    NODE_ENV: "production"
+    PORT: "3000"
+
+secret:
+  enabled: true
+
+volumes:
+  - name: next-cache
+    emptyDir: {}
+  - name: tmp
+    emptyDir: {}
+
+volumeMounts:
+  - name: next-cache
+    mountPath: /app/.next/cache
+  - name: tmp
+    mountPath: /tmp
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 768Mi
+
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /
+    port: http
+  periodSeconds: 20
+  timeoutSeconds: 5
+
+readinessProbe:
+  enabled: true
+  httpGet:
+    path: /
+    port: http
+  periodSeconds: 10
+  timeoutSeconds: 5
+
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+  hosts:
+    - host: compralatino.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              port:
+                number: 80
+  tls:
+    - hosts:
+        - compralatino.example.com
+      secretName: compralatino-web-tls

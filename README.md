@@ -1,8 +1,8 @@
 # compralatino-infra
 
-Local dev infrastructure for CompraLatino. For now this is plain Docker
-Compose; Helm charts for the K3s cluster (see Fase-2-CompraLatino-Mermaid.md
-2.5) will be added here later.
+Local dev infrastructure for CompraLatino. Docker Compose
+for local work and Helm values (chart `cabrera-evil/deploy-chart`) for the K3s
+cluster (see Fase-2-CompraLatino-Mermaid.md 2.5).
 
 ## Layout
 
@@ -24,6 +24,10 @@ Compose; Helm charts for the K3s cluster (see Fase-2-CompraLatino-Mermaid.md
     compralatino-yauctions-api/
     compralatino-frontend/
   ```
+- `helm/values/` — one values file per release (six APIs + frontend), with
+  the Traefik `Ingress` routing by path under `/api/v1`.
+- `helm/secrets/` — per-release secret values (gitignored, `CHANGE_ME`
+  placeholders until filled in).
 - `init-db/` — SQL run once on first Postgres startup to create the
   per-service schemas.
 
@@ -100,4 +104,56 @@ against this local database:
 # from each backend service's repo, pointed at the local Docker Postgres
 DATABASE_URL="postgresql://compralatino:compralatino@localhost:5432/compralatino?schema=<svc>_svc" \
   npx prisma migrate deploy --schema=prisma/schema.prisma
+```
+
+## Kubernetes (Helm)
+
+Each service is a release of
+[`cabrera-evil/deploy-chart`](https://artifacthub.io/packages/helm/cabrera-evil-charts/deploy-chart)
+(0.3.0) in the `compralatino` namespace. Traefik, as the cluster ingress
+controller (`className: traefik`), is the gateway: APIs are served on
+`api.compralatino.example.com` under `/api/v1/<resource>` and the frontend on
+`compralatino.example.com`. TLS uses cert-manager (`letsencrypt-production`).
+Replace both hosts with the real ones in `helm/values/*.yaml`.
+
+Prerequisites: Traefik, cert-manager and the Postgres, Redis and RabbitMQ
+services (`postgres`, `redis`, `rabbitmq`) in the same namespace. Infra is not
+part of these values.
+
+```bash
+helm repo add cabrera-evil https://cabrera-evil.github.io/charts/
+helm repo update
+```
+
+Secrets live in `helm/secrets/<release>.yaml` (gitignored). Replace every
+`CHANGE_ME` before deploying. `NEXT_PUBLIC_*` values are inlined when the
+frontend image is built, so set them as build args there too.
+
+Deploy one release (tag defaults to `latest`):
+
+```bash
+helm upgrade --install users-api cabrera-evil/deploy-chart --version 0.3.0 \
+  -n compralatino --create-namespace \
+  -f helm/values/users-api.yaml -f helm/secrets/users-api.yaml \
+  --set image.tag=<tag>
+```
+
+Releases: `users-api`, `catalog-api`, `orders-api`, `recommendations-api`,
+`admin-api`, `yauctions-api`, `frontend`.
+
+### Compile everything into a single YAML
+
+Renders every release into `helm/compiled.yaml` (gitignored, it embeds the
+secrets), ready to apply:
+
+```bash
+for f in helm/values/*.yaml; do
+  n=$(basename "$f" .yaml)
+  helm template "$n" cabrera-evil/deploy-chart --version 0.3.0 --skip-tests \
+    -n compralatino -f "$f" -f "helm/secrets/$n.yaml"
+  echo '---'
+done > helm/compiled.yaml
+
+kubectl create namespace compralatino --dry-run=client -o yaml | kubectl apply -f -
+kubectl apply -n compralatino -f helm/compiled.yaml
 ```
