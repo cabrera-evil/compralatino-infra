@@ -5,10 +5,13 @@ x-backend-common: &backend-common
   depends_on:
     postgres:
       condition: service_healthy
+      required: false
     redis:
       condition: service_started
+      required: false
     rabbitmq:
       condition: service_healthy
+      required: false
 
 x-backend-env-common: &backend-env-common
   PORT: 3000

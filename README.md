@@ -78,10 +78,12 @@ docker compose --profile rabbitmq up -d
 # All shared infra
 docker compose --profile infra up -d
 
-# Everything, infra + all services (note: backend services depend_on the
-# infra services, so their profile must be active too — use `all` rather
-# than `services` alone unless infra is already running elsewhere)
+# Everything, infra + all services (dependencies on infra are optional, so
+# `--profile services` alone also loads; `all` keeps start order and health waits)
 docker compose -f compose.yaml -f compose.services.yaml --profile all up -d --build
+
+# Build a single service without any profile
+docker compose -f compose.yaml -f compose.services.yaml build users-api
 ```
 
 Each service's own `.env` (in its sibling repo) is loaded via `env_file` for
