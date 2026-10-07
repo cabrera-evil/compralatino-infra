@@ -157,3 +157,19 @@ done > helm/compiled.yaml
 kubectl create namespace compralatino --dry-run=client -o yaml | kubectl apply -f -
 kubectl apply -n compralatino -f helm/compiled.yaml
 ```
+
+### Compile a single service
+
+Renders one release into `helm/compiled-<release>.yaml` (gitignored, it embeds
+that service's secrets). Set `SVC` to any release name:
+
+```bash
+SVC=users-api
+tag=latest   # image tag to deploy
+
+helm template "$SVC" cabrera-evil/deploy-chart --version 0.3.0 --skip-tests \
+  -n compralatino --set image.tag="$tag" \
+  -f "helm/values/$SVC.yaml" -f "helm/secrets/$SVC.yaml" > "helm/compiled-$SVC.yaml"
+
+kubectl apply -n compralatino -f "helm/compiled-$SVC.yaml"
+```

@@ -11,3 +11,4 @@
 # Helm secrets (never commit)
 helm/secrets/
 helm/compiled.yaml
+helm/compiled-*.yaml
