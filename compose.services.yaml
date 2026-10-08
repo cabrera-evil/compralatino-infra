@@ -15,17 +15,11 @@ x-backend-common: &backend-common
 
 x-backend-env-common: &backend-env-common
   PORT: 3000
-  REDIS_HOST: redis
-  REDIS_PORT: 6379
-  REDIS_PASSWORD: ${REDIS_PASSWORD:-compralatino}
   CACHE_ENABLED: 'true'
   CACHE_STORE: redis
   QUEUE_ENABLED: 'true'
   THROTTLE_STORAGE: redis
   THROTTLE_TRUST_PROXY: 'true'
-  RABBITMQ_ENABLED: 'true'
-  RABBITMQ_URL: amqp://${RABBITMQ_USER:-compralatino}:${RABBITMQ_PASSWORD:-compralatino}@rabbitmq:5672
-  RABBITMQ_EXCHANGE: compralatino_events
 
 services:
   users-api:
@@ -37,9 +31,9 @@ services:
     container_name: compralatino_users_api
     env_file:
       - ../compralatino-users-api/.env
+      - ../.env.shared
     environment:
       <<: *backend-env-common
-      DATABASE_URL: postgresql://${POSTGRES_USER:-compralatino}:${POSTGRES_PASSWORD:-compralatino}@postgres:5432/${POSTGRES_DB:-compralatino}?schema=users_svc
       RABBITMQ_QUEUE: users_svc_queue
     ports:
       - '3001:3000'
@@ -63,9 +57,9 @@ services:
     container_name: compralatino_catalog_api
     env_file:
       - ../compralatino-catalog-api/.env
+      - ../.env.shared
     environment:
       <<: *backend-env-common
-      DATABASE_URL: postgresql://${POSTGRES_USER:-compralatino}:${POSTGRES_PASSWORD:-compralatino}@postgres:5432/${POSTGRES_DB:-compralatino}?schema=catalog_svc
       RABBITMQ_QUEUE: catalog_svc_queue
     ports:
       - '3002:3000'
@@ -89,9 +83,9 @@ services:
     container_name: compralatino_orders_api
     env_file:
       - ../compralatino-orders-api/.env
+      - ../.env.shared
     environment:
       <<: *backend-env-common
-      DATABASE_URL: postgresql://${POSTGRES_USER:-compralatino}:${POSTGRES_PASSWORD:-compralatino}@postgres:5432/${POSTGRES_DB:-compralatino}?schema=orders_svc
       RABBITMQ_QUEUE: orders_svc_queue
     ports:
       - '3003:3000'
@@ -115,9 +109,9 @@ services:
     container_name: compralatino_recommendations_api
     env_file:
       - ../compralatino-recommendations-api/.env
+      - ../.env.shared
     environment:
       <<: *backend-env-common
-      DATABASE_URL: postgresql://${POSTGRES_USER:-compralatino}:${POSTGRES_PASSWORD:-compralatino}@postgres:5432/${POSTGRES_DB:-compralatino}?schema=recommendations_svc
       RABBITMQ_QUEUE: recommendations_svc_queue
     ports:
       - '3004:3000'
@@ -141,9 +135,9 @@ services:
     container_name: compralatino_admin_api
     env_file:
       - ../compralatino-admin-api/.env
+      - ../.env.shared
     environment:
       <<: *backend-env-common
-      DATABASE_URL: postgresql://${POSTGRES_USER:-compralatino}:${POSTGRES_PASSWORD:-compralatino}@postgres:5432/${POSTGRES_DB:-compralatino}?schema=admin_svc
       RABBITMQ_QUEUE: admin_svc_queue
     ports:
       - '3005:3000'
@@ -167,9 +161,9 @@ services:
     container_name: compralatino_yauctions_api
     env_file:
       - ../compralatino-yauctions-api/.env
+      - ../.env.shared
     environment:
       <<: *backend-env-common
-      DATABASE_URL: postgresql://${POSTGRES_USER:-compralatino}:${POSTGRES_PASSWORD:-compralatino}@postgres:5432/${POSTGRES_DB:-compralatino}?schema=yauctions_svc
       RABBITMQ_QUEUE: yauctions_svc_queue
     ports:
       - '3006:3000'

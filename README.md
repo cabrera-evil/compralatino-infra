@@ -86,11 +86,11 @@ docker compose -f compose.yaml -f compose.services.yaml --profile all up -d --bu
 docker compose -f compose.yaml -f compose.services.yaml build users-api
 ```
 
-Each service's own `.env` (in its sibling repo) is loaded via `env_file` for
-its app-level secrets (JWT, SMTP, Cloudinary, Google OAuth, etc.); this repo
-only overrides the values that must point at the Docker network instead of
-`localhost` or the cloud DB (`DATABASE_URL`, `REDIS_HOST`, `RABBITMQ_URL`,
-`RABBITMQ_QUEUE`, `PORT`).
+Shared settings (Postgres password, Redis, RabbitMQ, SMTP, Cloudinary, admin seed user)
+live once in `../.env.shared` (copy `../.env.shared.example`) and are loaded via
+`env_file` after each service's own `.env`, which keeps its app-level secrets
+and its schema-specific `DATABASE_URL`. This repo only overrides the values that
+must point at the Docker network (`RABBITMQ_QUEUE`, `PORT`).
 
 Host ports: users-api `3001`, catalog-api `3002`, orders-api `3003`,
 recommendations-api `3004`, admin-api `3005`, yauctions-api `3006`,
