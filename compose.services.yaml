@@ -89,7 +89,6 @@ services:
       <<: *backend-env-common
       RABBITMQ_QUEUE: orders_svc_queue
       CATALOG_RPC_TIMEOUT_MS: ${CATALOG_RPC_TIMEOUT_MS:-5000}
-      YAUCTIONS_RPC_TIMEOUT_MS: ${YAUCTIONS_RPC_TIMEOUT_MS:-5000}
     ports:
       - '3003:3000'
     labels:
