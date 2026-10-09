@@ -45,14 +45,14 @@ debugging and health checks.
 | `http://localhost/` | frontend |
 | `http://api.localhost/api/v1/{auth,user,role,permissions,api-key,audit-log}` | users-api |
 | `http://api.localhost/api/v1/{products,categories}` | catalog-api |
-| `http://api.localhost/api/v1/{orders,cart,checkout-options}` | orders-api (reserved) |
-| `http://api.localhost/api/v1/recommendations` | recommendations-api (reserved) |
-| `http://api.localhost/api/v1/yauctions` | yauctions-api (reserved) |
-| `http://api.localhost/api/v1/admin` | admin-api (reserved) |
+| `http://api.localhost/api/v1/{orders,cart,checkout-options}` | orders-api |
+| `http://api.localhost/api/v1/recommendations` | recommendations-api |
+| `http://api.localhost/api/v1/yauctions` | yauctions-api |
+| `http://api.localhost/api/v1/admin` | admin-api |
 | `http://api.localhost/<svc>/api/health` | per-service debug/health (`users`, `catalog`, `orders`, `recommendations`, `admin`, `yauctions`) |
 | `http://localhost:8080` | Traefik dashboard (dev only, bound to 127.0.0.1) |
 
-Reserved routes return 404 until the service implements them. `*.localhost`
+Routes return 404 until the owning service implements them. `*.localhost`
 resolves to 127.0.0.1 without editing `/etc/hosts`. Change the host port with
 `GATEWAY_PORT` if 80 is taken. In Docker the frontend gets
 `NEXT_PUBLIC_API_URL=http://traefik/api/v1`, `NEXT_PUBLIC_PROXY=true` and
