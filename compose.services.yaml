@@ -197,6 +197,7 @@ services:
         NEXT_PUBLIC_API_URL: http://traefik/api/v1
         NEXT_PUBLIC_PROXY: 'true'
         NEXT_PUBLIC_HOST: ${FRONTEND_ORIGIN:-http://localhost}
+        NEXT_PUBLIC_PAYMENT_BTC_ADDRESS: ${PAYMENT_BTC_ADDRESS:-}
     container_name: compralatino_frontend
     env_file:
       - ../compralatino-frontend/.env
