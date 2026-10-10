@@ -27,5 +27,6 @@ Docker-provider labels discover only containers. Local API processes need a file
 - Verification: `docker compose -f compose.yaml -f compose.local.yaml config` — passed (exit 0); `docker compose -f compose.yaml -f compose.services.yaml --profile infra --profile services config` — passed (exit 0); `git diff --check` — passed (exit 0).
 - Local mode invocation: `docker compose -f compose.yaml -f compose.local.yaml --profile gateway up -d`.
 - No automated test applies to this declarative routing change; no containers were started.
-- Work-unit commit: `ebb9034` (`feat(infra): add local Traefik API routing`). Authored line count: 176 additions.
-- Next: Run the receipt-driven review lifecycle for this work unit, then decide whether to push or open a PR.
+- Work-unit commit: `85c49ff` (`feat(infra): add local Traefik API routing`). Authored line count: 176 additions.
+- Receipt-driven review: unavailable — native assessment and status could not create their `.git/.gentle-ai-review-index-*` read-only index, so no candidate was frozen or reviewed.
+- Next: Restore Git metadata write access, rerun the receipt-driven lifecycle for `85c49ff`, then decide whether to push or open a PR.
