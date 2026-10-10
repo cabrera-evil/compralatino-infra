@@ -108,7 +108,7 @@ http:
     users-api:
       loadBalancer:
         servers:
-          - url: http://host.docker.internal:3001
+          - url: http://host.docker.internal:3005
     catalog-api:
       loadBalancer:
         servers:
@@ -124,7 +124,7 @@ http:
     admin-api:
       loadBalancer:
         servers:
-          - url: http://host.docker.internal:3005
+          - url: http://host.docker.internal:3001
     yauctions-api:
       loadBalancer:
         servers:
