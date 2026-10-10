@@ -18,6 +18,9 @@ x-backend-env-common: &backend-env-common
   CACHE_ENABLED: 'true'
   CACHE_STORE: redis
   QUEUE_ENABLED: 'true'
+  RABBITMQ_ENABLED: 'true'
+  RABBITMQ_EXCHANGE: ${RABBITMQ_EXCHANGE:-compralatino_events}
+  RABBITMQ_URL: amqp://${RABBITMQ_USER:-compralatino}:${RABBITMQ_PASSWORD:-compralatino}@rabbitmq:5672
   THROTTLE_STORAGE: redis
   THROTTLE_TRUST_PROXY: 'true'
 
