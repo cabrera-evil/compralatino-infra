@@ -18,6 +18,9 @@ x-backend-env-common: &backend-env-common
   CACHE_ENABLED: 'true'
   CACHE_STORE: redis
   QUEUE_ENABLED: 'true'
+  RABBITMQ_ENABLED: 'true'
+  RABBITMQ_EXCHANGE: ${RABBITMQ_EXCHANGE:-compralatino_events}
+  RABBITMQ_URL: amqp://${RABBITMQ_USER:-compralatino}:${RABBITMQ_PASSWORD:-compralatino}@rabbitmq:5672
   THROTTLE_STORAGE: redis
   THROTTLE_TRUST_PROXY: 'true'
 
@@ -61,6 +64,7 @@ services:
     environment:
       <<: *backend-env-common
       RABBITMQ_QUEUE: catalog_svc_queue
+      YAUCTIONS_RPC_TIMEOUT_MS: ${YAUCTIONS_RPC_TIMEOUT_MS:-3000}
     ports:
       - '3002:3000'
     labels:
@@ -87,6 +91,7 @@ services:
     environment:
       <<: *backend-env-common
       RABBITMQ_QUEUE: orders_svc_queue
+      CATALOG_RPC_TIMEOUT_MS: ${CATALOG_RPC_TIMEOUT_MS:-5000}
     ports:
       - '3003:3000'
     labels:
@@ -113,6 +118,7 @@ services:
     environment:
       <<: *backend-env-common
       RABBITMQ_QUEUE: recommendations_svc_queue
+      CATALOG_RPC_TIMEOUT_MS: ${CATALOG_RPC_TIMEOUT_MS:-5000}
     ports:
       - '3004:3000'
     labels:
@@ -165,6 +171,8 @@ services:
     environment:
       <<: *backend-env-common
       RABBITMQ_QUEUE: yauctions_svc_queue
+      SCRAPER_ENABLED: ${SCRAPER_ENABLED:-false}
+      SCRAPER_INTERVAL_MS: ${SCRAPER_INTERVAL_MS:-21600000}
     ports:
       - '3006:3000'
     labels:
@@ -189,7 +197,6 @@ services:
         NEXT_PUBLIC_API_URL: http://traefik/api/v1
         NEXT_PUBLIC_PROXY: 'true'
         NEXT_PUBLIC_HOST: ${FRONTEND_ORIGIN:-http://localhost}
-        NEXT_PUBLIC_API_MOCKS: ${NEXT_PUBLIC_API_MOCKS:-cart,orders,monitoring}
     container_name: compralatino_frontend
     env_file:
       - ../compralatino-frontend/.env
@@ -198,7 +205,6 @@ services:
       NEXT_PUBLIC_API_URL: http://traefik/api/v1
       NEXT_PUBLIC_PROXY: 'true'
       NEXT_PUBLIC_HOST: ${FRONTEND_ORIGIN:-http://localhost}
-      NEXT_PUBLIC_API_MOCKS: ${NEXT_PUBLIC_API_MOCKS:-cart,orders,monitoring}
     ports:
       - '3000:3000'
     networks:

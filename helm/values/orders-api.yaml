@@ -43,6 +43,7 @@ configMap:
     RABBITMQ_ENABLED: "true"
     RABBITMQ_EXCHANGE: "compralatino_events"
     RABBITMQ_QUEUE: "orders_svc_queue"
+    CATALOG_RPC_TIMEOUT_MS: "5000"
     REDIS_CONNECT_TIMEOUT: "10000"
     REDIS_HOST: "redis"
     REDIS_PORT: "6379"

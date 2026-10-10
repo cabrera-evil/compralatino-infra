@@ -43,6 +43,8 @@ configMap:
     RABBITMQ_ENABLED: "true"
     RABBITMQ_EXCHANGE: "compralatino_events"
     RABBITMQ_QUEUE: "yauctions_svc_queue"
+    SCRAPER_ENABLED: "false"
+    SCRAPER_INTERVAL_MS: "21600000"
     REDIS_CONNECT_TIMEOUT: "10000"
     REDIS_HOST: "redis"
     REDIS_PORT: "6379"
