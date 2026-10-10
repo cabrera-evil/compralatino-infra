@@ -1,0 +1,14 @@
+services:
+  traefik:
+    command:
+      - --providers.docker=false
+      - --providers.file.filename=/etc/traefik/local-apis.yaml
+      - --providers.file.watch=true
+      - --entrypoints.web.address=:80
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --accesslog=true
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    volumes:
+      - ./traefik/local-apis.yaml:/etc/traefik/local-apis.yaml:ro

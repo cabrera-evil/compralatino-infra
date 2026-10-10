@@ -1,0 +1,131 @@
+http:
+  routers:
+    users-api:
+      rule: (Host(`api.localhost`) || Host(`traefik`)) && PathPrefix(`/users/`)
+      entryPoints:
+        - web
+      middlewares:
+        - users-api-strip
+      service: users-api
+    users-api-v1:
+      rule: (Host(`api.localhost`) || Host(`traefik`)) && (PathPrefix(`/api/v1/auth`) || PathPrefix(`/api/v1/user`) || PathPrefix(`/api/v1/role`) || PathPrefix(`/api/v1/permissions`) || PathPrefix(`/api/v1/api-key`) || PathPrefix(`/api/v1/audit-log`))
+      entryPoints:
+        - web
+      service: users-api
+
+    catalog-api:
+      rule: (Host(`api.localhost`) || Host(`traefik`)) && PathPrefix(`/catalog/`)
+      entryPoints:
+        - web
+      middlewares:
+        - catalog-api-strip
+      service: catalog-api
+    catalog-api-v1:
+      rule: (Host(`api.localhost`) || Host(`traefik`)) && (PathPrefix(`/api/v1/products`) || PathPrefix(`/api/v1/categories`))
+      entryPoints:
+        - web
+      service: catalog-api
+
+    orders-api:
+      rule: (Host(`api.localhost`) || Host(`traefik`)) && PathPrefix(`/orders/`)
+      entryPoints:
+        - web
+      middlewares:
+        - orders-api-strip
+      service: orders-api
+    orders-api-v1:
+      rule: (Host(`api.localhost`) || Host(`traefik`)) && (PathPrefix(`/api/v1/orders`) || PathPrefix(`/api/v1/cart`) || PathPrefix(`/api/v1/checkout-options`))
+      entryPoints:
+        - web
+      service: orders-api
+
+    recommendations-api:
+      rule: (Host(`api.localhost`) || Host(`traefik`)) && PathPrefix(`/recommendations/`)
+      entryPoints:
+        - web
+      middlewares:
+        - recommendations-api-strip
+      service: recommendations-api
+    recommendations-api-v1:
+      rule: (Host(`api.localhost`) || Host(`traefik`)) && PathPrefix(`/api/v1/recommendations`)
+      entryPoints:
+        - web
+      service: recommendations-api
+
+    admin-api:
+      rule: (Host(`api.localhost`) || Host(`traefik`)) && PathPrefix(`/admin/`)
+      entryPoints:
+        - web
+      middlewares:
+        - admin-api-strip
+      service: admin-api
+    admin-api-v1:
+      rule: (Host(`api.localhost`) || Host(`traefik`)) && PathPrefix(`/api/v1/admin`)
+      entryPoints:
+        - web
+      service: admin-api
+
+    yauctions-api:
+      rule: (Host(`api.localhost`) || Host(`traefik`)) && PathPrefix(`/yauctions/`)
+      entryPoints:
+        - web
+      middlewares:
+        - yauctions-api-strip
+      service: yauctions-api
+    yauctions-api-v1:
+      rule: (Host(`api.localhost`) || Host(`traefik`)) && PathPrefix(`/api/v1/yauctions`)
+      entryPoints:
+        - web
+      service: yauctions-api
+
+  middlewares:
+    users-api-strip:
+      stripPrefix:
+        prefixes:
+          - /users
+    catalog-api-strip:
+      stripPrefix:
+        prefixes:
+          - /catalog
+    orders-api-strip:
+      stripPrefix:
+        prefixes:
+          - /orders
+    recommendations-api-strip:
+      stripPrefix:
+        prefixes:
+          - /recommendations
+    admin-api-strip:
+      stripPrefix:
+        prefixes:
+          - /admin
+    yauctions-api-strip:
+      stripPrefix:
+        prefixes:
+          - /yauctions
+
+  services:
+    users-api:
+      loadBalancer:
+        servers:
+          - url: http://host.docker.internal:3001
+    catalog-api:
+      loadBalancer:
+        servers:
+          - url: http://host.docker.internal:3002
+    orders-api:
+      loadBalancer:
+        servers:
+          - url: http://host.docker.internal:3003
+    recommendations-api:
+      loadBalancer:
+        servers:
+          - url: http://host.docker.internal:3004
+    admin-api:
+      loadBalancer:
+        servers:
+          - url: http://host.docker.internal:3005
+    yauctions-api:
+      loadBalancer:
+        servers:
+          - url: http://host.docker.internal:3006
