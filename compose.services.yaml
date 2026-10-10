@@ -205,6 +205,9 @@ services:
       NEXT_PUBLIC_API_URL: http://traefik/api/v1
       NEXT_PUBLIC_PROXY: 'true'
       NEXT_PUBLIC_HOST: ${FRONTEND_ORIGIN:-http://localhost}
+      # Public origin for Auth.js; the server itself binds to 0.0.0.0 inside the container.
+      AUTH_URL: ${FRONTEND_ORIGIN:-http://localhost}
+      AUTH_TRUST_HOST: 'true'
     ports:
       - '3000:3000'
     networks:
