@@ -28,7 +28,10 @@ services:
   users-api:
     <<: *backend-common
     profiles: ['users-api', 'services', 'all']
-    image: cabreraevil/compralatino-users-api
+    image: cabreraevil/compralatino-users-api:${IMAGE_TAG:-latest}
+    build:
+      context: ../compralatino-users-api
+      dockerfile: Dockerfile
     container_name: compralatino_users_api
     env_file:
       - ../compralatino-users-api/.env
@@ -52,7 +55,10 @@ services:
   catalog-api:
     <<: *backend-common
     profiles: ['catalog-api', 'services', 'all']
-    image: cabreraevil/compralatino-catalog-api
+    image: cabreraevil/compralatino-catalog-api:${IMAGE_TAG:-latest}
+    build:
+      context: ../compralatino-catalog-api
+      dockerfile: Dockerfile
     container_name: compralatino_catalog_api
     env_file:
       - ../compralatino-catalog-api/.env
@@ -77,7 +83,10 @@ services:
   orders-api:
     <<: *backend-common
     profiles: ['orders-api', 'services', 'all']
-    image: cabreraevil/compralatino-orders-api
+    image: cabreraevil/compralatino-orders-api:${IMAGE_TAG:-latest}
+    build:
+      context: ../compralatino-orders-api
+      dockerfile: Dockerfile
     container_name: compralatino_orders_api
     env_file:
       - ../compralatino-orders-api/.env
@@ -102,7 +111,10 @@ services:
   recommendations-api:
     <<: *backend-common
     profiles: ['recommendations-api', 'services', 'all']
-    image: cabreraevil/compralatino-recommendations-api
+    image: cabreraevil/compralatino-recommendations-api:${IMAGE_TAG:-latest}
+    build:
+      context: ../compralatino-recommendations-api
+      dockerfile: Dockerfile
     container_name: compralatino_recommendations_api
     env_file:
       - ../compralatino-recommendations-api/.env
@@ -127,7 +139,10 @@ services:
   admin-api:
     <<: *backend-common
     profiles: ['admin-api', 'services', 'all']
-    image: cabreraevil/compralatino-admin-api
+    image: cabreraevil/compralatino-admin-api:${IMAGE_TAG:-latest}
+    build:
+      context: ../compralatino-admin-api
+      dockerfile: Dockerfile
     container_name: compralatino_admin_api
     env_file:
       - ../compralatino-admin-api/.env
@@ -151,7 +166,10 @@ services:
   yauctions-api:
     <<: *backend-common
     profiles: ['yauctions-api', 'services', 'all']
-    image: cabreraevil/compralatino-yauctions-api
+    image: cabreraevil/compralatino-yauctions-api:${IMAGE_TAG:-latest}
+    build:
+      context: ../compralatino-yauctions-api
+      dockerfile: Dockerfile
     container_name: compralatino_yauctions_api
     env_file:
       - ../compralatino-yauctions-api/.env
@@ -177,7 +195,16 @@ services:
   frontend:
     restart: unless-stopped
     profiles: ['frontend', 'services', 'all']
-    image: cabreraevil/compralatino-frontend
+    image: cabreraevil/compralatino-frontend:${IMAGE_TAG:-latest}
+    build:
+      context: ../compralatino-frontend
+      dockerfile: Dockerfile
+      # NEXT_PUBLIC_* are inlined at `next build`; effective only if the Dockerfile declares matching ARGs.
+      args:
+        NEXT_PUBLIC_API_URL: http://traefik/api/v1
+        NEXT_PUBLIC_PROXY: 'true'
+        NEXT_PUBLIC_HOST: ${FRONTEND_ORIGIN:-http://localhost}
+        NEXT_PUBLIC_PAYMENT_BTC_ADDRESS: ${PAYMENT_BTC_ADDRESS:-}
     container_name: compralatino_frontend
     env_file:
       - ../compralatino-frontend/.env
