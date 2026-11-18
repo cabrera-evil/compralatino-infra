@@ -28,9 +28,9 @@ configMap:
     CACHE_ENABLED: "true"
     CACHE_STORE: "redis"
     CACHE_TTL: "3600"
-    CORS_ORIGIN: "https://compralatino.example.com"
+    CORS_ORIGIN: "https://cl.digital-dreams.dev"
     ENCRYPTION_ENABLED: "false"
-    FRONTEND_URL: "https://compralatino.example.com"
+    FRONTEND_URL: "https://cl.digital-dreams.dev"
     GOOGLE_CALLBACK_PATH: "/auth/google/callback"
     HOME: "/tmp"
     NODE_ENV: "production"
@@ -44,7 +44,6 @@ configMap:
     RABBITMQ_EXCHANGE: "compralatino_events"
     RABBITMQ_QUEUE: "admin_svc_queue"
     REDIS_CONNECT_TIMEOUT: "10000"
-    REDIS_HOST: "redis"
     REDIS_PORT: "6379"
     SALT_ROUNDS: "10"
     SMTP_IGNORE_TLS: "false"
@@ -111,7 +110,7 @@ ingress:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
   hosts:
-    - host: api.compralatino.example.com
+    - host: api.cl.digital-dreams.dev
       paths:
         - path: /api/v1/admin
           pathType: Prefix
@@ -121,5 +120,5 @@ ingress:
                 number: 80
   tls:
     - hosts:
-        - api.compralatino.example.com
+        - api.cl.digital-dreams.dev
       secretName: compralatino-api-tls

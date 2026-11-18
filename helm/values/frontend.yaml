@@ -24,12 +24,14 @@ configMap:
   enabled: true
   data:
     AUTH_DEBUG: "false"
+    AUTH_TRUST_HOST: "true"
+    AUTH_URL: "https://cl.digital-dreams.dev"
     HOSTNAME: "0.0.0.0"
-    NEXT_PUBLIC_API_URL: "https://api.compralatino.example.com/api/v1"
+    NEXT_PUBLIC_API_URL: "https://api.cl.digital-dreams.dev/api/v1"
     NEXT_PUBLIC_GOOGLE_ADSENSE_ID: "your-adsense-id"
     NEXT_PUBLIC_GOOGLE_ANALYTICS_ID: "your-analytics-id"
     NEXT_PUBLIC_GOOGLE_SITES_VERIFICATION: "your-sites-verification-code"
-    NEXT_PUBLIC_HOST: "https://compralatino.example.com"
+    NEXT_PUBLIC_HOST: "https://cl.digital-dreams.dev"
     NEXT_PUBLIC_PROXY: "true"
     NODE_ENV: "production"
     PORT: "3000"
@@ -80,7 +82,7 @@ ingress:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
   hosts:
-    - host: compralatino.example.com
+    - host: cl.digital-dreams.dev
       paths:
         - path: /
           pathType: Prefix
@@ -90,5 +92,5 @@ ingress:
                 number: 80
   tls:
     - hosts:
-        - compralatino.example.com
+        - cl.digital-dreams.dev
       secretName: compralatino-web-tls
