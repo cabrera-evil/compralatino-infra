@@ -46,6 +46,7 @@ configMap:
     CATALOG_RPC_TIMEOUT_MS: "5000"
     REDIS_CONNECT_TIMEOUT: "10000"
     REDIS_PORT: "6379"
+    REDIS_TLS: "false"
     SALT_ROUNDS: "10"
     SMTP_IGNORE_TLS: "false"
     SMTP_SECURE: "false"

@@ -47,6 +47,7 @@ configMap:
     SCRAPER_INTERVAL_MS: "21600000"
     REDIS_CONNECT_TIMEOUT: "10000"
     REDIS_PORT: "6379"
+    REDIS_TLS: "false"
     SALT_ROUNDS: "10"
     SMTP_IGNORE_TLS: "false"
     SMTP_SECURE: "false"
